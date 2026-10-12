@@ -46,10 +46,10 @@
          Panel de Control (Dashboard)
       </button>
       <button class="nav-tab" data-target="vista-registro">
-         Nuevo Registro (Venta / Servicio)
+         Nueva venta o servicio
       </button>
       <button class="nav-tab" data-target="vista-tabla">
-         Historial y Remisiones (<span id="total-registros-badge">0</span>)
+         Historial de remisiones (<span id="total-registros-badge">0</span>)
       </button>
     </nav>
 
@@ -134,7 +134,7 @@
     <section id="vista-registro" class="view-panel">
       <div class="form-container-card">
         <div class="form-header">
-          <h2>Registro Unificado de Ventas y Servicios</h2>
+          <h2>Registra una nueva venta o servicio</h2>
           <p>Diligencia el formulario. Los campos se adaptan dinámicamente según la atención seleccionada.</p>
         </div>
 
@@ -156,7 +156,7 @@
                 Tipo de Atención <span class="req">*</span>
               </label>
               <select id="campo-tipo-atencion" name="tipoAtencion" required>
-                <option value="" disabled selected>-- Seleccione Tipo de Atención --</option>
+                <option value="" disabled selected>--Seleccione tipo de atención--</option>
                 <option value="venta">Venta de Repuestos</option>
                 <option value="servicio">Servicio de Mantenimiento</option>
                 <option value="ambos">Ambos (Venta de Repuesto + Servicio)</option>
@@ -167,17 +167,17 @@
             <!-- Datos de Contacto y Cliente (Esenciales para WhatsApp y Remisión PDF) -->
             <div class="form-group col-6">
               <label for="campo-cliente-nombre">
-                Nombre del Cliente <span class="req">*</span>
+                Nombre del Cliente <span class="req" id="indicador-req-nombre">*</span>
               </label>
-              <input type="text" id="campo-cliente-nombre" placeholder="Ej: Carlos Mario Gómez" required>
+              <input type="text" id="campo-cliente-nombre" placeholder="Ej: Carlos Mario Gómez">
             </div>
 
             <div class="form-group col-6">
               <label for="campo-cliente-tel">
-                Teléfono / WhatsApp del Cliente <span class="req">*</span>
+                Teléfono / WhatsApp del Cliente <span class="req" id="indicador-req-tel">*</span>
               </label>
-              <input type="tel" id="campo-cliente-tel" placeholder="Ej: 3001234567" required>
-              <small class="help-text">Para enviar la cotización/remisión por WhatsApp con 1 clic.</small>
+              <input type="tel" id="campo-cliente-tel" placeholder="Ej: 3001234567">
+              <small class="help-text" id="help-cliente-tel">Para enviar la cotización/remisión por WhatsApp con 1 clic.</small>
             </div>
 
             <!-- Referencia de Bicicleta (Opcional, muy útil para la remisión del taller) -->

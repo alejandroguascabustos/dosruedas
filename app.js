@@ -125,6 +125,9 @@
   const campoTipoAtencion = document.getElementById('campo-tipo-atencion');
   const campoClienteNombre = document.getElementById('campo-cliente-nombre');
   const campoClienteTel = document.getElementById('campo-cliente-tel');
+  const indicadorReqNombre = document.getElementById('indicador-req-nombre');
+  const indicadorReqTel = document.getElementById('indicador-req-tel');
+  const helpClienteTel = document.getElementById('help-cliente-tel');
   const campoBiciDetalle = document.getElementById('campo-bici-detalle');
   const seccionRepuesto = document.getElementById('seccion-repuesto');
   const campoTipoRepuesto = document.getElementById('campo-tipo-repuesto');
