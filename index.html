@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mecabikes | Gestión de Talleres</title>
+  <!-- Favicon con el logo del taller -->
+  <link rel="icon" type="image/png" href="imgs/logo.png">
+  <link rel="stylesheet" href="styles.css">
+  <!-- Fuentes e Iconos -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- jsPDF & AutoTable para generación de PDF de Remisiones -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.autotable.min.js"></script>
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- ENCABEZADO -->
+    <header class="app-header">
+      <div class="header-brand">
+        <div class="logo-container">
+          <img src="imgs/logo.png" alt="Logo Dos Ruedas" class="brand-logo" id="brand-logo-img">
+        </div>
+        <div>
+          <h1>Meca<span>bikes</span></h1>
+          <p class="subtitle">Sistema de control de ventas, servicios y remisiones de taller</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <span class="live-clock" id="current-clock">--:--:--</span>
+        <button id="btn-export-json" class="btn-secondary btn-sm" title="Descargar copia de seguridad en JSON">
+          Respaldar Datos
+        </button>
+        <button id="btn-seed-data" class="btn-outline btn-sm" title="Cargar datos de ejemplo para prueba">
+          Cargar Ejemplos
+        </button>
+      </div>
+    </header>
+
+    <!-- NAVEGACIÓN DE SECCIONES -->
+    <nav class="nav-tabs">
+      <button class="nav-tab active" data-target="vista-dashboard">
+         Panel de Control (Dashboard)
+      </button>
+      <button class="nav-tab" data-target="vista-registro">
+         Nuevo Registro (Venta / Servicio)
+      </button>
+      <button class="nav-tab" data-target="vista-tabla">
+         Historial y Remisiones (<span id="total-registros-badge">0</span>)
+      </button>
+    </nav>
+
+    <!-- VISTA 1: DASHBOARD -->
+    <section id="vista-dashboard" class="view-panel active">
+      <div class="section-title-wrap">
+        <h2>Indicadores del Mes en Curso</h2>
+        <span class="badge-month" id="label-mes-actual">Mes actual</span>
+      </div>
+
+      <!-- Tarjetas de Estadísticas (KPIs) -->
+      <div class="kpi-grid">
+        <div class="kpi-card card-total">
+          <div class="kpi-icon"><img src="imgs/personas.png" alt="Atenciones" class="brand-logo" id="brand-logo-img"></div>
+          <div class="kpi-info">
+            <span class="kpi-label">Atenciones del mes</span>
+            <span class="kpi-value" id="kpi-total-atenciones">0</span>
+            <span class="kpi-sub" id="kpi-sub-total">0 Ventas | 0 Servicios</span>
+          </div>
+        </div>
+
+        <div class="kpi-card card-ventas">
+          <div class="kpi-icon"><img src="imgs/moneda.png" alt="Ventas" class="brand-logo" id="brand-logo-img"></div>
+          <div class="kpi-info">
+            <span class="kpi-label">Valor en ventas</span>
+            <span class="kpi-value" id="kpi-recaudo-ventas">$ 0</span>
+            <span class="kpi-sub" id="kpi-cant-ventas">0 transacciones</span>
+          </div>
+        </div>
+
+        <div class="kpi-card card-servicios">
+          <div class="kpi-icon"><img src="imgs/servicios.png" alt="Servicios" class="brand-logo" id="brand-logo-img"></div>
+          <div class="kpi-info">
+            <span class="kpi-label">Valor en servicios</span>
+            <span class="kpi-value" id="kpi-recaudo-servicios">$ 0</span>
+            <span class="kpi-sub" id="kpi-cant-servicios">0 órdenes de servicio</span>
+          </div>
+        </div>
+
+        <div class="kpi-card card-global">
+          <div class="kpi-icon"><img src="imgs/calendario.png" alt="Ingreso mes" class="brand-logo" id="brand-logo-img"></div>
+          <div class="kpi-info">
+            <span class="kpi-label">Ingreso total del mes</span>
+            <span class="kpi-value" id="kpi-recaudo-total">$ 0</span>
+            <span class="kpi-sub">Total facturado</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grid con Top 5 Servicios y Acceso Rápido -->
+      <div class="dashboard-secondary-grid">
+        <!-- TOP 5 SERVICIOS -->
+        <div class="content-box top-services-box">
+          <div class="box-header">
+            <h3>Top 5 Servicios Más Pedidos</h3>
+            <small>Basado en las solicitudes del taller</small>
+          </div>
+          <div id="top-servicios-container" class="top-services-list">
+            <!-- Se llena dinámicamente con JS -->
+          </div>
+        </div>
+
+        <!-- ACCESO RÁPIDO Y ACTIVIDAD RECIENTE -->
+        <div class="content-box recent-activity-box">
+          <div class="box-header">
+            <h3>Últimos Movimientos</h3>
+            <button class="link-btn" onclick="document.querySelector('[data-target=\'vista-tabla\']').click()">Ver Todos</button>
+          </div>
+          <div id="ultimos-registros-list" class="recent-list">
+            <!-- Se llena dinámicamente con JS -->
+          </div>
+          <div class="quick-cta">
+            <button class="btn-primary w-100" onclick="document.querySelector('[data-target=\'vista-registro\']').click()">
+              Registrar Venta o Servicio Ahora
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VISTA 2: FORMULARIO DE REGISTRO -->
+    <section id="vista-registro" class="view-panel">
+      <div class="form-container-card">
+        <div class="form-header">
+          <h2>Registro Unificado de Ventas y Servicios</h2>
+          <p>Diligencia el formulario. Los campos se adaptan dinámicamente según la atención seleccionada.</p>
+        </div>
+
+        <form id="form-registro" novalidate>
+          <div class="form-grid">
+            
+            <!-- 1. Fecha Automática -->
+            <div class="form-group col-6">
+              <label for="campo-fecha">
+                Fecha y Hora de Registro <span class="tag-auto">Automática</span>
+              </label>
+              <input type="datetime-local" id="campo-fecha" name="fecha" required>
+              <small class="help-text">Se asigna la fecha y hora actual automáticamente.</small>
+            </div>
+
+            <!-- 2. Tipo de Atención (Obligatorio) -->
+            <div class="form-group col-6">
+              <label for="campo-tipo-atencion">
+                Tipo de Atención <span class="req">*</span>
+              </label>
+              <select id="campo-tipo-atencion" name="tipoAtencion" required>
+                <option value="" disabled selected>-- Seleccione Tipo de Atención --</option>
+                <option value="venta">Venta de Repuestos</option>
+                <option value="servicio">Servicio de Mantenimiento</option>
+                <option value="ambos">Ambos (Venta de Repuesto + Servicio)</option>
+              </select>
+              <small class="help-text">Define qué campos adicionales se activarán.</small>
+            </div>
+
+            <!-- Datos de Contacto y Cliente (Esenciales para WhatsApp y Remisión PDF) -->
+            <div class="form-group col-6">
+              <label for="campo-cliente-nombre">
+                Nombre del Cliente <span class="req">*</span>
+              </label>
+              <input type="text" id="campo-cliente-nombre" placeholder="Ej: Carlos Mario Gómez" required>
+            </div>
+
+            <div class="form-group col-6">
+              <label for="campo-cliente-tel">
+                Teléfono / WhatsApp del Cliente <span class="req">*</span>
+              </label>
+              <input type="tel" id="campo-cliente-tel" placeholder="Ej: 3001234567" required>
+              <small class="help-text">Para enviar la cotización/remisión por WhatsApp con 1 clic.</small>
+            </div>
+
+            <!-- Referencia de Bicicleta (Opcional, muy útil para la remisión del taller) -->
+            <div class="form-group col-12 field-bicicleta" id="seccion-bici">
+              <label for="campo-bici-detalle">
+                Referencia de Bicicleta / Color / Placa
+              </label>
+              <input type="text" id="campo-bici-detalle" placeholder="Ej: GW Flamma Rin 29 Negro/Rojo - Serie o rasgo característico">
+            </div>
+
+            <!-- SECCIÓN CONDICIONAL: VENTA DE REPUESTOS -->
+            <!-- 3. Tipo de repuesto y 4. Nombre de repuesto -->
+            <div class="conditional-block col-12 hidden" id="seccion-repuesto">
+              <div class="conditional-badge badge-repuesto">Datos del Repuesto</div>
+              <div class="form-grid">
+                
+                <div class="form-group col-6">
+                  <label for="campo-tipo-repuesto">
+                    Categoría / Tipo de Repuesto <span class="req">*</span>
+                  </label>
+                  <select id="campo-tipo-repuesto">
+                    <option value="" disabled selected>-- Seleccione Tipo de Repuesto --</option>
+                    <option value="Transmisión">Transmisión (Cadenas, Pachas, Bielas, Tensor)</option>
+                    <option value="Frenos">Frenos (Pastillas, Discos, Guayas, Calipers)</option>
+                    <option value="Ruedas y Neumáticos">Ruedas y Neumáticos (Llantas, Neumáticos, Corazas)</option>
+                    <option value="Suspensión y Dirección">Suspensión y Dirección (Horquillas, Espigas, Manubrios)</option>
+                    <option value="Rodamientos y Manzanas">Rodamientos, Ejes y Manzanas</option>
+                    <option value="Accesorios y Seguridad">Accesorios (Luces, Cascos, Candados, Pedales)</option>
+                    <option value="Otro">Otro Componente</option>
+                  </select>
+                </div>
+
+                <div class="form-group col-6">
+                  <label for="campo-nombre-repuesto">
+                    Nombre del Repuesto <span class="req">*</span>
+                  </label>
+                  <input type="text" id="campo-nombre-repuesto" placeholder="Ej: Cadena Shimano Deore 11V / Pastillas Shimano B05S">
+                </div>
+
+              </div>
+            </div>
+
+            <!-- SECCIÓN CONDICIONAL: SERVICIO DE MANTENIMIENTO -->
+            <!-- 5. Tipo de servicio -->
+            <div class="conditional-block col-12 hidden" id="seccion-servicio">
+              <div class="conditional-badge badge-servicio">Datos del Servicio de Taller</div>
+              <div class="form-grid">
+                
+                <div class="form-group col-12">
+                  <label for="campo-tipo-servicio">
+                    Tipo de Servicio Solicitado <span class="req">*</span>
+                  </label>
+                  <select id="campo-tipo-servicio">
+                    <option value="" disabled selected>-- Seleccione Tipo de Servicio --</option>
+                    <option value="Mantenimiento General Completo">Mantenimiento General Completo (Desarme, Limpieza y Engrase Total)</option>
+                    <option value="Mantenimiento Preventivo Básico">Mantenimiento Preventivo Básico (Ajuste, Lavado y Lubricación)</option>
+                    <option value="Ajuste y Sincronización de Cambios">Ajuste y Sincronización de Cambios</option>
+                    <option value="Purga y Calibración de Frenos Hidráulicos">Purga y Calibración de Frenos Hidráulicos</option>
+                    <option value="Mantenimiento de Suspensión Delantera">Mantenimiento de Suspensión Delantera</option>
+                    <option value="Centrado y Nivelación de Rines">Centrado y Nivelación de Rines</option>
+                    <option value="Lavado y Desengrase Especializado">Lavado y Desengrase Especializado</option>
+                    <option value="Instalación de Accesorios o Componentes">Instalación de Accesorios o Componentes</option>
+                    <option value="Reparación de Pinchazo y Cambio de Neumático">Reparación de Pinchazo y Cambio de Neumático</option>
+                    <option value="Otro Servicio Técnico">Otro Servicio Técnico</option>
+                  </select>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- 6. Observación (Aparece en los 3 escenarios como opcional) -->
+            <div class="form-group col-12">
+              <label for="campo-observacion">
+                Observaciones / Estado de Entrada <span class="tag-opt">Opcional</span>
+              </label>
+              <textarea id="campo-observacion" rows="3" placeholder="Detalles de inspección inicial: rayones previos, desgaste de piezas, solicitud especial del cliente o notas técnicas..."></textarea>
+            </div>
+
+            <!-- 7. Valor (Aparece en los 3 escenarios como obligatorio) -->
+            <div class="form-group col-12">
+              <label for="campo-valor">
+                Valor Total de la Atención (COP) <span class="req">*</span>
+              </label>
+              <div class="input-money-wrap">
+                <span class="currency-prefix">$</span>
+                <input type="number" id="campo-valor" min="0" step="500" placeholder="Ej: 85000" required>
+              </div>
+              <small class="help-text" id="help-valor-formato">En pesos colombianos (COP).</small>
+            </div>
+
+          </div>
+
+          <!-- Botones de Acción del Formulario -->
+          <div class="form-actions">
+            <button type="button" id="btn-limpiar-form" class="btn-secondary">
+              Limpiar Formulario
+            </button>
+            <button type="submit" class="btn-primary btn-lg">
+              Guardar Registro
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- VISTA 3: TABLA DETALLADA CON FILTROS, WHATSAPP Y PDF DE REMISIÓN -->
+    <section id="vista-tabla" class="view-panel">
+      <div class="content-box">
+        <div class="table-header-bar">
+          <div>
+            <h2>Historial Detallado de Ventas y Servicios</h2>
+            <p>Genera la remisión legal en PDF para servicios o envía la cotización por WhatsApp con un solo clic.</p>
+          </div>
+
+          <!-- Controles de Filtro y Búsqueda -->
+          <div class="table-filters">
+            <div class="filter-group">
+              <input type="text" id="filtro-busqueda" placeholder="Buscar por cliente, repuesto, servicio..." class="input-search">
+            </div>
+            <div class="filter-group">
+              <select id="filtro-tipo" class="select-filter">
+                <option value="todos">Todos los Tipos</option>
+                <option value="venta">Solo Ventas</option>
+                <option value="servicio">Solo Servicios</option>
+                <option value="ambos">Ventas + Servicios</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabla Responsiva -->
+        <div class="table-responsive">
+          <table class="data-table" id="tabla-registros">
+            <thead>
+              <tr>
+                <th># Remisión / ID</th>
+                <th>Fecha</th>
+                <th>Cliente / Contacto</th>
+                <th>Tipo</th>
+                <th>Detalle (Repuesto / Servicio)</th>
+                <th>Observaciones</th>
+                <th class="text-right">Valor</th>
+                <th class="text-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-registros-body">
+              <!-- Se inyecta dinámicamente con JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-footer-summary" id="tabla-footer-summary">
+          <span>Mostrando <b id="conteo-filtrados">0</b> de <b id="conteo-totales">0</b> registros</span>
+          <span class="total-filtrado-label">Subtotal visible: <b id="total-visible-valor">$ 0</b></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- MODAL / DIÁLOGO PREVISUALIZAR MENSAJE WHATSAPP -->
+    <div id="modal-whatsapp" class="modal-backdrop hidden">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h3>Enviar Cotización por WhatsApp</h3>
+          <button class="btn-close" id="btn-cerrar-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-destinatario">
+            Destinatario: <b id="modal-wa-cliente">Cliente</b> (<span id="modal-wa-tel">0000000000</span>)
+          </p>
+          <label for="modal-wa-texto">Texto plano a enviar:</label>
+          <textarea id="modal-wa-texto" rows="10" class="wa-textarea"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" id="btn-copiar-wa">Copiar Texto</button>
+          <a href="#" target="_blank" id="btn-abrir-wa" class="btn-whatsapp">
+            Abrir en WhatsApp
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- PIE DE PÁGINA -->
+    <footer class="app-footer">
+      <p><b>Mecabikes Store</b> &bull; Alejandro Dev <br>2026</p>
+    </footer>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
+
