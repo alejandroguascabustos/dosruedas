@@ -95,7 +95,6 @@
       valor: 195000
     },
     {
-      id: 'DR-2026-10-11T12:00',
       id: 'DR-2026-007',
       fecha: '2026-10-11T11:00',
       clienteNombre: 'Santiago Ospina',
@@ -313,21 +312,27 @@
       campoNombreRepuesto.value = '';
       campoTipoServicio.required = true;
     } else if (seleccion === 'ambos') {
-      // Mostrar ambos
-      seccionRepuesto.classList.remove('hidden');
-      seccionServicio.classList.remove('hidden');
+        // Mostrar ambos
+        seccionRepuesto.classList.remove('hidden');
+        seccionServicio.classList.remove('hidden');
 
-      campoTipoRepuesto.required = true;
-      campoNombreRepuesto.required = true;
-      campoTipoServicio.required = true;
+        campoTipoRepuesto.required = true;
+        campoNombreRepuesto.required = true;
+        campoTipoServicio.required = true;
     } else {
-      // Ninguno seleccionado
-      seccionRepuesto.classList.add('hidden');
-      seccionServicio.classList.add('hidden');
-      campoTipoRepuesto.required = false;
-      campoNombreRepuesto.required = false;
-      campoTipoServicio.required = false;
+        // Ninguno seleccionado
+        seccionRepuesto.classList.add('hidden');
+        seccionServicio.classList.add('hidden');
+        campoTipoRepuesto.required = false;
+        campoNombreRepuesto.required = false;
+        campoTipoServicio.required = false;
     }
+
+    // Actualizar indicadores de campos obligatorios para nombre y teléfono del cliente
+    const esObligatorio = (campoTipoAtencion.value !== 'venta');
+    if (indicadorReqNombre) indicadorReqNombre.style.display = esObligatorio ? 'inline' : 'none';
+    if (indicadorReqTel) indicadorReqTel.style.display = esObligatorio ? 'inline' : 'none';
+    if (helpClienteTel) helpClienteTel.style.display = esObligatorio ? 'block' : 'none';
   }
 
   function resetearFormulario() {
@@ -382,16 +387,19 @@
       }
     }
 
-    if (!campoClienteNombre.value.trim()) {
-      alert('Por favor ingresa el Nombre del Cliente.');
-      campoClienteNombre.focus();
-      return;
-    }
+    // Cliente nombre y teléfono son obligatorios a menos que Tipo de Atención sea 'venta'
+    if (tipoAtencion !== 'venta') {
+      if (!campoClienteNombre.value.trim()) {
+        alert('Por favor ingresa el Nombre del Cliente.');
+        campoClienteNombre.focus();
+        return;
+      }
 
-    if (!campoClienteTel.value.trim()) {
-      alert('Por favor ingresa el Teléfono / WhatsApp del Cliente.');
-      campoClienteTel.focus();
-      return;
+      if (!campoClienteTel.value.trim()) {
+        alert('Por favor ingresa el Teléfono / WhatsApp del Cliente.');
+        campoClienteTel.focus();
+        return;
+      }
     }
 
     // Construcción del nuevo registro
@@ -1079,15 +1087,17 @@ ${bloqueDetalle}📝 *Observaciones / Diagnóstico:* ${reg.observacion ? reg.obs
   }
 
   function configurarAccionesGenerales() {
-    // Botón Cargar Datos Semilla
-    btnSeedData.addEventListener('click', () => {
-      if (confirm('¿Deseas recargar los datos de prueba iniciales? Se agregarán si faltan.')) {
-        registros = [...DATOS_SEMILLA];
-        guardarDatos();
-        renderizarTodo();
-        alert('✅ Datos de prueba cargados correctamente.');
-      }
-    });
+    // Botón Cargar Datos Semilla (si existe)
+    if (btnSeedData) {
+      btnSeedData.addEventListener('click', () => {
+        if (confirm('¿Deseas recargar los datos de prueba iniciales? Se agregarán si faltan.')) {
+          registros = [...DATOS_SEMILLA];
+          guardarDatos();
+          renderizarTodo();
+          alert('✅ Datos de prueba cargados correctamente.');
+        }
+      });
+    }
 
     // Botón Exportar JSON de respaldo
     btnExportJson.addEventListener('click', () => {
