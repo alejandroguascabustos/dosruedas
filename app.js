@@ -387,20 +387,7 @@
       }
     }
 
-    // Cliente nombre y teléfono son obligatorios a menos que Tipo de Atención sea 'venta'
-    if (tipoAtencion !== 'venta') {
-      if (!campoClienteNombre.value.trim()) {
-        alert('Por favor ingresa el Nombre del Cliente.');
-        campoClienteNombre.focus();
-        return;
-      }
 
-      if (!campoClienteTel.value.trim()) {
-        alert('Por favor ingresa el Teléfono / WhatsApp del Cliente.');
-        campoClienteTel.focus();
-        return;
-      }
-    }
 
     // Construcción del nuevo registro
     const nuevoRegistro = {
